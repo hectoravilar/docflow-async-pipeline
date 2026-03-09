@@ -1,0 +1,1 @@
+{"filename": "builds\\9daf7a2b9f736516e3318ab0d87d01288aed9c45284b9c2b40603631ccdd0e73.zip", "runtime": "python3.12", "artifacts_dir": "builds", "build_plan": [[["zip", "./src/lambda-CreateS3File", null]]]}

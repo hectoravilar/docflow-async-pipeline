@@ -1,0 +1,14 @@
+# Arquivos do Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.tfstate.lock.info
+.tflint.d/
+
+# Arquivos do Python/Flask
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Arquivos do SO
+.DS_Store
