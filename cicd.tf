@@ -153,7 +153,7 @@ resource "aws_codepipeline" "pipeline" {
       output_artifacts = ["source_output"]
       configuration = {
         ConnectionArn    = aws_codestarconnections_connection.repo.arn
-        FullRepositoryId = "seu-usuario/dreamsquad-app" # <-- ALTERE PARA O SEU REPOSITÓRIO
+        FullRepositoryId = "hectoravila/dreamsquad-app" 
         BranchName       = "main"
       }
     }
