@@ -25,7 +25,6 @@ terraform {
       version = "~> 3.2.0"
     }
   }
-}
 
 # variáveis locais
 locals {
