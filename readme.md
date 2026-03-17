@@ -1,54 +1,36 @@
-# DevOps App
+# Docflow
 
-## Objetivo
-Criar um site estático simples para demonstrar um pipeline CI/CD completo e automatizado na AWS, utilizando as melhores práticas de Infraestrutura como Código.
+Docflow is a high-performance, **Asynchronous Event-Driven Document Processing Pipeline**. It allows users to upload receipts or invoices which are then processed in the background to extract critical metadata such as total amounts, dates, and Tax IDs (CNPJ).
 
-## Requisitos
-- Configurar uma aplicação de FrontEnd estático simples que consome a API do backend.
-- Configurar o deploy de uma aplicação de BackEnd utilizando tecnologia de container.
-- Configurar um serviço que executa uma rotina diária às 10:00am para inserir um arquivo no S3. O nome do arquivo gerado deve ser a data/hora exata da execução da rotina.
-- Toda a infraestrutura deve ser provisionada utilizando Terraform.
+## Objective
+The primary goal is to provide a seamless, non-blocking user experience. By utilizing **Presigned URLs**, the system ensures secure file transfers while offloading heavy extraction tasks (OCR/Parsing) to a scalable backend architecture.
 
-## Tecnologias
-- O Frontend estático é hospedado no AWS S3 e realiza chamadas para a API do backend.
-- O Backend é desenvolvido em Python e hospedado no AWS ECS Fargate.
-- Um scheduler é criado utilizando AWS EventBridge, que aciona uma Lambda para criar um arquivo no bucket S3.
-- A infraestrutura é validada com TFLint e Checkov.
-- O backend possui Unit Tests e é testado com PyLint e Bandit.
-- O registro de imagens Docker utiliza o AWS ECR (com bypass de imagem para o Amazon ECR Public Gallery para evitar Rate Limit do Docker Hub).
+##  Tech Stack
+* **Language:** Python
+* **Document Processing:** PyPDF2 / OCR (Tesseract or AWS Textract)
+* **Frontend Hosting:** AWS CloudFront + S3 (Static Web Hosting)
+* **Messaging/Queuing:** AWS SQS
+* **Containerization:** Docker on AWS ECS (Fargate/EC2)
+* **Database:** AWS RDS PostgreSQL
 
-## Pipeline CI/CD
-O pipeline orquestra todo o fluxo com as seguintes etapas:
-- **Build:** Cria os artefatos da aplicação e constrói a imagem Docker.
-- **Test:** Executa os linters (PyLint), testes unitários, testes de segurança (Bandit) e valida a infraestrutura (TFLint e Checkov).
-- **Deploy:** Após a geração e armazenamento da imagem Docker no AWS ECR, atualiza a imagem no ECS Fargate.
+##  Architecture & Workflow
+1. **Secure Upload:** The frontend requests a **Presigned URL** from S3 to upload the document directly, reducing server overhead.
+2. **Event Trigger:** Once the upload is complete, an event is sent to **AWS SQS**.
+3. **Background Processing:** A Python worker running on **Docker (ECS)** consumes the message, processes the file, and extracts data.
+4. **Persistence:** The extracted metadata is stored in **RDS PostgreSQL** for user retrieval.
 
-## Servicos AWS
-- **S3**: Para hospedar o frontend estático e armazenar os arquivos gerados pela rotina diária.
-- **ECS Fargate:** Para hospedar o backend em containers.
-- **EventBridge:** Para agendar a rotina diária que insere arquivos no S3.
-- **Lambda:** Para criar um arquivo no S3 quando acionada pelo EventBridge.
-- **ECR:** Para armazenar as imagens Docker do backend.
-- **CodePipeline:** Para orquestrar o pipeline CI/CD.
-- **CodeBuild:** Para executar as etapas de build, test e deploy no pipeline CI/CD.
+## CI/CD Pipeline
+The project implements a robust automation workflow:
+* **Linting & Testing:** Automated Python unit tests.
+* **Containerization:** Docker images are automatically built and pushed to **AWS ECR**.
+* **Deployment:** Continuous Deployment to **AWS ECS** clusters via GitHub Actions or AWS CodePipeline.
 
-## Como Executar
+## AWS Services Summary
 
-### Configuração do Repositório (GitLab vs GitHub)
-Por padrão, o pipeline está configurado para o GitLab. Se você for utilizar o GitHub, faça as seguintes alterações no arquivo cicd.tf:
-1. No recurso **aws_codestarconnections_connection**, altere o **provider_type** para **"GitHub"**.
-2. No recurso **aws_codepipeline**(na etapa Source), atualize o caminho do seu repositório:
-   **FullRepositoryId** = "seu-usuario/seu-repositorio"
-
-### Passos para Deploy
-1. Clone este repositório.
-2. Inicialize o **Terraform** para baixar os providers executando: **terraform init**
-3. Valide o plano de infraestrutura executando: **terraform plan**
-4. Aplique a configuração para criar os recursos na AWS executando: **terraform apply**
-5. **Atenção:** Após o primeiro apply, acesse o console da AWS em **CodePipeline -> Settings -> Connections** para autorizar manualmente a conexão com o seu provedor **Git (GitLab ou GitHub).**
-6. Após a autorização, realize um novo commit no seu repositório ou clique em **Release change no CodePipeline** para iniciar o primeiro deploy completo da aplicação.
-
-## Observações
-- Certifique-se de ter as credenciais da AWS configuradas na sua máquina.
-- O Terraform deve estar na versão 1.5.0 ou superior.
-- Este projeto foca na separação de responsabilidades (SoC), onde o Terraform cuida da infraestrutura e o CodeBuild cuida do ciclo de vida da aplicação.
+| Service | Role |
+| :--- | :--- |
+| **CloudFront** | Global content delivery for the frontend. |
+| **S3** | Secure object storage for document files. |
+| **SQS** | Message broker to decouple upload and processing. |
+| **ECS** | Managed container orchestration for the backend workers. |
+| **RDS** | Fully managed PostgreSQL database for metadata storage. |
