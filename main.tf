@@ -7,8 +7,9 @@ provider "aws" {
 # configuração do terraform
 terraform {
   # Versão mínima do Terraform necessária para executar este código
-  required_version = ">= 1.5.0" 
+  required_version = ">= 1.5.0"
 
+  required_providers {
     # provider aws para gerenciar recursos na amazon web services
     aws = {
       source  = "hashicorp/aws"
@@ -25,6 +26,7 @@ terraform {
       version = "~> 3.2.0"
     }
   }
+}
 
 # variáveis locais
 locals {
