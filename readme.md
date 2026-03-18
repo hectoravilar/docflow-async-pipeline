@@ -34,3 +34,7 @@ The project implements a robust automation workflow:
 | **SQS** | Message broker to decouple upload and processing. |
 | **ECS** | Managed container orchestration for the backend workers. |
 | **RDS** | Fully managed PostgreSQL database for metadata storage. |
+
+## Documentation & References used
+- For [Presigned URLs](https://docs.aws.amazon.com/boto3/latest/guide/s3-presigned-urls.html)
+- For [Logging](https://docs.python.org/3/howto/logging.html)
