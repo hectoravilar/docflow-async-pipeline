@@ -1,4 +1,17 @@
 import logging
+import signal
+import time
+import os
+import sys
+
+is_running = True
+
+
+def handle_shutdown_signal(signum, frame):
+    """Catches the termination signal and flips the kill switch"""
+    global is_running
+    logging.info(f"Caught signal {signum}. Initiating graceful shutdown...")
+    is_running = False
 
 
 def main():
@@ -10,6 +23,9 @@ def main():
 
     # Spin up the logger for this module
     logger = logging.getLogger(__name__)
+
+    signal.signal(signal.SIGTERM, handle_shutdown_signal)  # AWS/Docker signal
+    signal.signal(signal.SIGINT, handle_shutdown_signal)
 
     # Tell the lifecycle story
     logger.info("Booting up the DocFLow Worker...")
@@ -26,8 +42,16 @@ def main():
             "listening to the SQS queue. Waiting for documents to drop...")
         # start_sqs_worker()
 
+        while is_running:
+            # the real calls will be here
+
+            time.sleep(1)  # testing
+
+        logging.info("Worker gracefullly shut down!")
+
     except Exception as e:
         logger.error(f"Fatal error during worker startup: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
