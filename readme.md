@@ -56,3 +56,6 @@ The project implements a robust automation workflow:
 - [SQS.Client.receive_message](https://docs.aws.amazon.com/boto3/latest/reference/services/sqs/client/receive_message.html)
 - [Amazon SQS short and long polling](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html#sqs-long-polling)
 - [SQS.Client.delete_message](https://docs.aws.amazon.com/boto3/latest/reference/services/sqs/client/delete_message.html)
+- [S3.Client.get_object](https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/get_object.html#get-object)
+- [Python Regex](https://www.w3schools.com/python/python_regex.asp)
+- [pypdf lib: Exceptions, Warnings, Log messages](https://pypdf.readthedocs.io/en/3.17.1/user/suppress-warnings.html)
