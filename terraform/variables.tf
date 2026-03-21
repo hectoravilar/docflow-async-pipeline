@@ -1,15 +1,17 @@
-resource "aws_instance" "web" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
-  subnet_id     = "subnet-12345"
-
-  tags = {
-    Environment = "DevOps"
-    Name        = "docflow-web-instance"
-  }
-}
 variable "environment" {
-  type        = string
   description = "Deployment environment name"
-  default     = "dev"
+  type        = string
+  default     = "DevOps"
+}
+
+variable "aws_region" {
+  description = "AWS Region where the resources will be created"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
+  default     = "docflow"
 }
