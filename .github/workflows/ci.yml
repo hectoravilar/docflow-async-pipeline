@@ -1,0 +1,36 @@
+name: Docflow CI - Docker Build
+
+# Trigger this workflow whenever we push code or open a PR against the main branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build Docker Image
+    # Spin up a fresh, GitHub-hosted Ubuntu virtual machine
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Pull our repository code into the runner environment
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Fire up Docker Buildx (the modern, faster build engine under the hood)
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 3: Build the Docker image to ensure it compiles without crashing.
+      # Note: 'push: false' acts as a sanity check. We are just testing the build, 
+      # not pushing it to a registry (like Docker Hub or AWS ECR) just yet.
+      - name: Build Worker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./worker
+          file: ./worker/Dockerfile
+          push: false
+          tags: docflow-worker:latest
