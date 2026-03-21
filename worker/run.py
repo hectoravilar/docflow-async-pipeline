@@ -35,7 +35,7 @@ def main():
         logger.info("Fetching enviroment variables...")
         # load config()
 
-        logger.info("Hooking up to the RDS database")
+        logger.info("Hooking up to the DynamoDB")
         # connect_db()
 
         logger.info(
