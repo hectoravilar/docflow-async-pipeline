@@ -12,7 +12,7 @@ provider "aws" {
   region = var.aws_region
 }
 resource "aws_s3_bucket" "docflow_bucket" {
-  bucket = "${var.project_name}-pdfs-hector-${var.environment}"
+  bucket = lower("${var.project_name}-pdfs-hector-${var.environment}")
 
   tags = {
     Name        = var.project_name
@@ -39,7 +39,7 @@ resource "aws_sqs_queue" "docflow_queue" {
 }
 
 resource "aws_dynamodb_table" "docflow_table" {
-  name             = "${var.project_name}-dynamodb-${var.environment}"
+  name             = lower("${var.project_name}-dynamodb-${var.environment}")
   hash_key         = "document_id"
   billing_mode     = "PAY_PER_REQUEST"
   stream_enabled   = true
