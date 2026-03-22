@@ -23,7 +23,7 @@ resource "aws_sqs_queue" "docflow_dlq" {
   name = "${var.project_name}-dlq-${var.environment}"
 }
 resource "aws_sqs_queue" "docflow_queue" {
-  name                       = "${var.project_name}-sqs-${var.environment}"
+  name                       = lower("${var.project_name}-sqs-${var.environment}")
   max_message_size           = 2048
   message_retention_seconds  = 86400
   visibility_timeout_seconds = 60
