@@ -15,12 +15,12 @@ resource "aws_s3_bucket" "docflow_bucket" {
   bucket = lower("${var.project_name}-pdfs-hector-${var.environment}")
 
   tags = {
-    Name        = var.project_name
-    Environment = var.environment
+    Name        = lower(var.project_name)
+    Environment = lower(var.environment)
   }
 }
 resource "aws_sqs_queue" "docflow_dlq" {
-  name = "${var.project_name}-dlq-${var.environment}"
+  name = lower("${var.project_name}-dlq-${var.environment}")
 }
 resource "aws_sqs_queue" "docflow_queue" {
   name                       = lower("${var.project_name}-sqs-${var.environment}")
@@ -34,7 +34,7 @@ resource "aws_sqs_queue" "docflow_queue" {
   })
 
   tags = {
-    Environment = var.environment
+    Environment = lower(var.environment)
   }
 }
 
