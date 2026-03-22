@@ -25,7 +25,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       # Step 3: Build the Docker image to ensure it compiles without crashing.
-      # Note: 'push: false' acts as a sanity check. We are just testing the build, 
+      # Note: 'push: false' acts as a sanity check. We are just testing the build,
       # not pushing it to a registry (like Docker Hub or AWS ECR) just yet.
       - name: Build Worker Image
         uses: docker/build-push-action@v5

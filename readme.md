@@ -76,6 +76,7 @@ The project implements a robust automation workflow:
 - [aws_dynamodb_table](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table)
 - [input variables to add module arguments](https://developer.hashicorp.com/terraform/language/values/variables)
 - [outputs to expose module data](https://developer.hashicorp.com/terraform/language/values/outputs)
+- [aws_ecr_repository](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository)
 
 ## Dockerfile Documentation used
 
