@@ -51,7 +51,7 @@ resource "aws_dynamodb_table" "docflow_table" {
   }
 }
 resource "aws_ecr_repository" "docflow_repository" {
-  name                 = lower("docflow-worker-s${var.environment}")
+  name                 = lower("docflow-worker-${var.environment}")
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 
