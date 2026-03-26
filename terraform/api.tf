@@ -73,4 +73,10 @@ resource "aws_apigatewayv2_api" "api_gateway" {
     max_age       = 300
   }
 }
+resource "aws_apigatewayv2_integration" "lambda_integration" {
+  api_id             = aws_apigatewayv2_api.api_gateway.id
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST"
+  integration_uri    = aws_lambda_function.api_handler.invoke_arn
+}
 
