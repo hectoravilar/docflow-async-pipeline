@@ -9,7 +9,6 @@ function App() {
 
   const API_ENDPOINT = "https://1mh4vq4ac1.execute-api.us-east-1.amazonaws.com/upload";
 
-  // Gerencia os eventos de Arrastar e Soltar (Drag & Drop)
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -32,7 +31,7 @@ function App() {
         setMessage('');
       } else {
         setStatus('error');
-        setMessage('Por favor, envie apenas arquivos PDF.');
+        setMessage('Invalid file type. Please upload PDF files only.');
       }
     }
   };
@@ -51,7 +50,7 @@ function App() {
 
     try {
       setStatus('uploading');
-      setMessage('Gerando credenciais seguras na AWS...');
+      setMessage('Fetching secure AWS credentials...');
 
       const apiResponse = await fetch(API_ENDPOINT, {
         method: 'POST',
@@ -59,11 +58,11 @@ function App() {
         body: JSON.stringify({ filename: file.name }),
       });
 
-      if (!apiResponse.ok) throw new Error('Falha de autorização na API.');
+      if (!apiResponse.ok) throw new Error('API authorization failed.');
       
       const { url, fields } = await apiResponse.json();
 
-      setMessage('Transferindo arquivo para o S3...');
+      setMessage('Uploading directly to Amazon S3...');
 
       const formData = new FormData();
       Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
@@ -76,28 +75,28 @@ function App() {
 
       if (s3Response.ok || s3Response.status === 204) {
         setStatus('success');
-        setMessage('Upload concluído! Documento na fila de processamento.');
+        setMessage('Upload successful! Document queued for processing.');
         setFile(null);
       } else {
-        throw new Error('Falha no upload direto para o S3.');
+        throw new Error('Direct S3 upload failed.');
       }
 
     } catch (error) {
       console.error(error);
       setStatus('error');
-      setMessage(error.message || 'Erro inesperado de rede.');
+      setMessage(error.message || 'An unexpected network error occurred.');
     }
   };
 
   return (
     <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans text-neutral-200">
       
-      {/* Efeitos de Luz de Fundo (Glow) */}
+      {/* Background Glow Effects */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="z-10 w-full max-w-lg">
-        {/* Cabeçalho */}
+        {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center p-3 bg-neutral-900 border border-neutral-800 rounded-xl mb-4 shadow-2xl">
             <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,13 +106,13 @@ function App() {
           <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">
             Docflow <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Pipeline</span>
           </h1>
-          <p className="text-neutral-400 font-medium">Extração de metadados orientada a eventos.</p>
+          <p className="text-neutral-400 font-medium">Event-driven metadata extraction.</p>
         </div>
 
-        {/* Card Principal */}
+        {/* Main Card */}
         <div className="bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 p-8 rounded-3xl shadow-2xl">
           
-          {/* Área de Drag & Drop */}
+          {/* Drag & Drop Zone */}
           <div 
             className={`relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-2xl transition-colors duration-200 ease-in-out
               ${dragActive ? 'border-blue-500 bg-blue-500/10' : 'border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800/50'}
@@ -140,9 +139,9 @@ function App() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
                 <p className="text-sm text-neutral-400 font-medium">
-                  <span className="text-blue-400">Clique para selecionar</span> ou arraste e solte
+                  <span className="text-blue-400">Click to upload</span> or drag and drop
                 </p>
-                <p className="text-xs text-neutral-500">Apenas arquivos PDF (Max 10MB)</p>
+                <p className="text-xs text-neutral-500">PDF files only (Max 10MB)</p>
               </div>
             ) : (
               <div className="flex flex-col items-center space-y-2 pointer-events-none">
@@ -155,7 +154,7 @@ function App() {
             )}
           </div>
 
-          {/* Mensagens de Feedback */}
+          {/* Feedback Messages */}
           {message && (
             <div className={`mt-6 p-4 rounded-xl flex items-center space-x-3 text-sm font-medium border transition-all
               ${status === 'uploading' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : ''}
@@ -177,7 +176,7 @@ function App() {
             </div>
           )}
 
-          {/* Botão de Upload */}
+          {/* Action Button */}
           <button 
             onClick={handleUpload}
             disabled={!file || status === 'uploading'}
@@ -188,7 +187,7 @@ function App() {
               }
             `}
           >
-            {status === 'uploading' ? 'Processando...' : 'Iniciar Upload Seguro'}
+            {status === 'uploading' ? 'Processing...' : 'Start Secure Upload'}
           </button>
 
         </div>
@@ -198,7 +197,7 @@ function App() {
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
           </svg>
-          <span>Upload assíncrono via Amazon S3 Presigned URLs</span>
+          <span>Asynchronous upload via Amazon S3 Presigned URLs</span>
         </div>
       </div>
     </div>

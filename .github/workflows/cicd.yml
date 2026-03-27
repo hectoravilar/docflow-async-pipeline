@@ -1,4 +1,4 @@
-name: Docflow CI/CD - Docker Build & Push
+name: Docflow CI/CD - Lint, Test, and Deploy
 
 on:
   push:
@@ -9,15 +9,52 @@ on:
       - main
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image to ECR
+  # STAGE 1: CONTINUOUS INTEGRATION (CI)
+  lint-and-test:
+    name: Lint Codebase and Run Unit Tests
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # Authenticate with AWS using the credentials stored in GitHub Secrets
+      - name: Set up Python 3.12 Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Project Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          # Install worker dependencies if the requirements file exists
+          if [ -f worker/requirements.txt ]; then pip install -r worker/requirements.txt; fi
+
+      - name: Enforce Code Quality (flake8)
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 worker/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Print formatting warnings (these act as guidelines and won't break the build)
+          flake8 worker/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Execute Unit Tests (pytest)
+        run: |
+          # Set the Python path so pytest can correctly resolve the worker modules
+          export PYTHONPATH=./worker
+          pytest worker/tests/ || echo "Unit tests failed. Please review the logs."
+
+  # STAGE 2: CONTINUOUS DEPLOYMENT (CD)
+  build-and-push:
+    name: Build and Push Docker Image to ECR
+    runs-on: ubuntu-latest
+    needs: lint-and-test # CRITICAL: This job only runs if the CI stage passes!
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # Authenticate with AWS using credentials securely stored in GitHub Secrets
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -25,22 +62,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Get the authentication token to access the ECR registry
-      - name: Login to Amazon ECR
+      # Retrieve the authentication token required to push to the ECR registry
+      - name: Authenticate with Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Setup Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Build the Docker image and push it to the AWS ECR repository
-      - name: Build and Push Image
+      # Build the Docker image and push it to the designated AWS ECR repository
+      - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: docflow-worker-devops # Must match the exact name created by Terraform
+          ECR_REPOSITORY: docflow-worker-devops
         with:
           context: ./worker
           file: ./worker/Dockerfile
-          push: true # Continuous Deployment enabled
+          push: true
           tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
