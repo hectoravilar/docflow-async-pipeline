@@ -91,6 +91,11 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.api_gateway.execution_arn}/*/*"
 }
+resource "aws_apigatewayv2_stage" "default_stage" {
+  api_id      = aws_apigatewayv2_api.api_gateway.id
+  name        = "$default"
+  auto_deploy = true
+}
 output "api_endpoint" {
   value       = "${aws_apigatewayv2_api.api_gateway.api_endpoint}/upload"
   description = "The endpoint URL used by the frontend to request S3 presigned links"
